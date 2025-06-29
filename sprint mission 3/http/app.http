@@ -1,0 +1,17 @@
+###
+GET  http://localhost:3000/
+
+###
+POST http://localhost:3000/upload
+
+###
+GET  http://localhost:3000/api/products
+
+###
+POST http://localhost:3000/api/products
+
+###
+GET  http://localhost:3000/api/articles
+
+###
+POST http://localhost:3000/api/articles
