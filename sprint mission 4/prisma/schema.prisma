@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  nickname  String
+  password  String // 해시된 비밀번호
+  role      String   @default("USER") // 예: USER | ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 역방향 관계 - 수정됨
+  products        Product[]
+  articles        Article[]
+  productComments ProductComment[] @relation("UserProductComments")
+  articleComments ArticleComment[] @relation("UserArticleComments")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Int
+  tags        String[] // 필수 배열, null 허용 안됨
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 외래 키
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 수정됨: Comment → ProductComment
+  comments ProductComment[]
+}
+
+model Article {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 수정됨: Comment → ArticleComment
+  comments ArticleComment[]
+}
+
+model ProductComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation("UserProductComments", fields: [userId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ArticleComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation("UserArticleComments", fields: [userId], references: [id], onDelete: Cascade)
+
+  articleId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
