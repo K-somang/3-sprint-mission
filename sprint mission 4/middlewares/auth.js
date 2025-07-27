@@ -104,7 +104,6 @@ async function UserInfoAuth(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('JWT_SECRET:', process.env.JWT_SECRET); 
 
     if (!decoded.id) {
       return res.status(401).json({ message: '토큰에 유저 ID가 존재하지 않습니다.' });
@@ -115,7 +114,6 @@ async function UserInfoAuth(req, res, next) {
     res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
   }
 }
-
 
 export default {
   verifyAccessToken,

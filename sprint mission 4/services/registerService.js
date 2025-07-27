@@ -46,11 +46,13 @@ async function verifyPassword(inputPassword, password) {
 }
 
 async function createToken(user) {
+  console.log(user);
   const payload = {
     id: user.id,
     nickname: user.nickname,
     email: user.email,
     password: user.password,
+    userId: user.userId,
   };
   const options = { expiresIn: '1h' };
   return jwt.sign(payload, process.env.JWT_SECRET, options);

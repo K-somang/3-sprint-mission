@@ -100,6 +100,22 @@ async function getByArticleCommentId(id) {
   return review;
 }
 
+async function getProductInfo(id) {
+  return prisma.product.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      name: true,
+      description: true,
+      price: true,
+      tags: true,
+      createdAt: true,
+      updatedAt: true,
+    }
+  });
+}
+
 export default {
   findById,
   findByEmail,
@@ -110,4 +126,5 @@ export default {
   getByArticleId,
   getByProductCommentId,
   getByArticleCommentId,
+  getProductInfo,
 }
