@@ -32,7 +32,7 @@ async function verifyProductAuth(req, res, next) {
 }
 
 async function verifyArticleAuth(req, res, next) {
-  const userId = req.params.id;
+  const userId = req.params.articleId;
   try {
     const ArticleInfo = await registerRepository.getByArticleId(userId);
 
@@ -41,7 +41,7 @@ async function verifyArticleAuth(req, res, next) {
       error.code = 404;
       throw error;
     }
-    if (ArticleInfo.id !== req.user.userId) {
+    if (ArticleInfo.userId !== req.user.id) {
       const error = new Error('Forbidden');
       error.code = 403;
       throw error;
@@ -63,7 +63,7 @@ async function verifyProductCommentAuth(req, res, next) {
       error.code = 404;
       throw error;
     }
-    if (ProductCommentInfo.id !== req.user.userId) {
+    if (ProductCommentInfo.commentId !== req.user.userId) {
       const error = new Error('Forbidden');
       error.code = 403;
       throw error;
@@ -85,7 +85,7 @@ async function verifyArticleCommentAuth(req, res, next) {
       error.code = 404;
       throw error;
     }
-    if (ArticleCommentInfo.id !== req.user.userId) {
+    if (ArticleCommentInfo.commentId !== req.user.userId) {
       const error = new Error('Forbidden');
       error.code = 403;
       throw error;

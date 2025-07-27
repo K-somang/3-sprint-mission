@@ -10,14 +10,14 @@ router.route('/')
   .post(
     auth.verifyAccessToken,
     async (req, res) => {
-      const { userId } = req.user;
+      const { id } = req.user;
       try {
         const { title, content } = req.body;
         if (!title || !content) {
           return res.status(400).json({ error: '필수 필드가 누락되었습니다.' });
         }
         const article = await prisma.article.create({
-          data: { title, content, user: { connect: { id: Number(userId) } } },
+          data: { title, content, user: { connect: { id: Number(id) } } },
         });
         res.status(201).json(article);
       } catch (error) {
@@ -59,13 +59,13 @@ router.route('/')
     }
   });
 
-router.route('/:id')
+router.route('/:articleId')
   // 게시글 상세 조회
   .get(async (req, res) => {
     try {
-      const { id } = req.params;
+      const { articleId } = req.params;
       const article = await prisma.article.findUnique({
-        where: { id: Number(id) },
+        where: { id: Number(articleId) },
       });
       if (!article) {
         return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
@@ -83,10 +83,10 @@ router.route('/:id')
     auth.verifyArticleAuth,
     async (req, res) => {
       try {
-        const { id } = req.params;
-        const { title, content } = req.body;          // 허용 필드만
+        const { articleId } = req.params;
+        const { title, content } = req.body;
         const updatedArticle = await prisma.article.update({
-          where: { id: Number(id) },
+          where: { id: Number(articleId) },
           data: { title, content },
         });
         res.json(updatedArticle);
@@ -102,9 +102,9 @@ router.route('/:id')
     auth.verifyArticleAuth,
     async (req, res) => {
       try {
-        const { id } = req.params;
+        const { articleId } = req.params;
         await prisma.article.delete({
-          where: { id: Number(id) },
+          where: { id: Number(articleId) },
         });
         res.status(204).send();
       } catch (error) {

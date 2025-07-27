@@ -13,7 +13,7 @@ import auth from '../middlewares/auth.js';
 const router = express.Router();
 
 // 중고마켓 댓글 등록 API
-router.post('/:userId/:productId/comments',
+router.post('/:userId/:productId',
     auth.verifyAccessToken,
     validate(commentSchema), async (req, res, next) => {
         try {
@@ -43,7 +43,7 @@ router.post('/:userId/:productId/comments',
     });
 
 // 중고마켓 댓글 수정 API
-router.patch('/:userId/:productId/comments/:commentId',
+router.patch('/:userId/:productId/:commentId',
     auth.verifyAccessToken,
     auth.verifyProductCommentAuth,
     validate(commentSchema), async (req, res, next) => {
@@ -77,7 +77,7 @@ router.patch('/:userId/:productId/comments/:commentId',
     });
 
 // 중고마켓 댓글 삭제 API
-router.delete('/:userId/:productId/comments/:commentId',
+router.delete('/:userId/:productId/:commentId',
     auth.verifyAccessToken,
     auth.verifyProductCommentAuth,
     async (req, res, next) => {

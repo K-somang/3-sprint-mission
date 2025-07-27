@@ -103,19 +103,19 @@ router.route('/:id')
     }
   });
 
-router.route('/:id/:productId')
+router.route('/:productId')
   // 상품 수정 로직
   .patch(
     auth.verifyAccessToken,
     auth.verifyProductAuth,
     async (req, res) => {
       try {
-        const { id, productId } = req.params;
+        const { productId } = req.params;
         const { name, description, price, tags } = req.body;
         const data = { name, description, price, tags };
 
         const updatedProduct = await prisma.product.update({
-          where: { userId: Number(id), id: Number(productId) },
+          where: { id: Number(productId) },
           data,
         });
 
@@ -131,9 +131,9 @@ router.route('/:id/:productId')
     async (req, res) => {
       // 상품 삭제 로직
       try {
-        const { id, productId } = req.params;
+        const { productId } = req.params;
         const deletedProduct = await prisma.product.delete({
-          where: { userId: Number(id), id: Number(productId) },
+          where: { id: Number(productId) },
         });
 
         res.status(204).json(deletedProduct);

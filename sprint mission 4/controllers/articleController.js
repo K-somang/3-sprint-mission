@@ -92,14 +92,14 @@ export const updateArticle = async (req, res, next) => {
     
     // 존재 여부 확인
     const existing = await prisma.article.findUnique({ 
-      where: { id: id.value } 
+      where: { id: id } 
     });
     if (!existing) {
       return res.status(404).json({ message: '게시글을 찾을 수 없습니다' });
     }
 
     const article = await prisma.article.update({
-      where: { id: id.value },
+      where: { id: id },
       data: { title, content },
     });
     

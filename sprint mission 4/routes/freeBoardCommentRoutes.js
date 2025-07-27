@@ -13,7 +13,7 @@ import auth from '../middlewares/auth.js';
 const router = express.Router();
 
 // 자유게시판 댓글 등록 API
-router.post('/:userId/:articleId/comments',
+router.post('/:userId/:articleId/',
     auth.verifyAccessToken,
     validate(commentSchema), async (req, res, next) => {
         try {
@@ -59,7 +59,7 @@ router.post('/:userId/:articleId/comments',
     });
 
 // 자유게시판 댓글 수정 API
-router.patch('/:userId/:articleId/comments/:commentId',
+router.patch('/:userId/:articleId/:commentId',
     auth.verifyAccessToken,
     auth.verifyArticleCommentAuth,
     validate(commentSchema), async (req, res, next) => {
@@ -101,7 +101,7 @@ router.patch('/:userId/:articleId/comments/:commentId',
     });
 
 // 자유게시판 댓글 삭제 API
-router.delete('/:userId/:articleId/comments/:commentId',
+router.delete('/:userId/:articleId/:commentId',
     auth.verifyAccessToken,
     auth.verifyArticleCommentAuth,
     async (req, res, next) => {
