@@ -7,7 +7,7 @@ async function hashingPassword(password: string | Buffer<ArrayBufferLike>) {
   return bcrypt.hash(password, 10);
 }
 
-async function createUser(user: { email: any; password: any; nickname: any; }) {
+async function createUser(user: { email: string; password: string; nickname: string; }) {
   const existedUser = await authRepository.findByEmail(user.email);
 
   if (existedUser) {
@@ -19,7 +19,7 @@ async function createUser(user: { email: any; password: any; nickname: any; }) {
   return filterSensitiveUserData(createUser);
 }
 
-function filterSensitiveUserData(user: any) {
+function filterSensitiveUserData(user: { [key: string]: any }) {
   return user;
 }
 
@@ -39,13 +39,12 @@ async function verifyPassword(inputPassword: string | Buffer<ArrayBufferLike>, p
   }
 }
 
-async function createToken(user: { id: any; nickname: any; email: any; password: any; userId: any; }) {
+async function createToken(user: { id: number; nickname: string; email: string; password: string; }) {
   const payload = {
     id: user.id,
     nickname: user.nickname,
     email: user.email,
     password: user.password,
-    userId: user.userId,
   };
   const secret = process.env.JWT_SECRET;
   if (!secret) {

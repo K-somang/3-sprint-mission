@@ -37,9 +37,10 @@
 
 ### 심화 요구 사항
 #### Layered Architecture 적용하기
-- [ ] Controller, Service, Repository로 나누어 코드를 리팩토링해 주세요.
+- [x] Controller, Service, Repository로 나누어 코드를 리팩토링해 주세요.
 
 - [ ] 필요하다면, 계층 사이에서 데이터를 주고 받을 때 DTO를 활용해 주세요.
 
 ### 멘토에게
-#### 
+#### 지난 번에 적어주신 리뷰 참고하여 코드를 전반적으로 수정하였습니다.
+#### 시간 관계 상 심화 요구 사항에서 DTO를 활용하지 못했습니다.

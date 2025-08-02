@@ -1,19 +1,19 @@
 import { RequestHandler } from 'express'
 import bcrypt from 'bcrypt';
 import auth from "../middlewares/authMiddleware.js";
-import registerRepository from "../repositories/authRepository.js";
-import { Prisma, PrismaClient } from '@prisma/client';
+import authRepository from "../repositories/authRepository.js";
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const UserInfo: RequestHandler = async (req, res, next) => {
-  auth.UserInfoAuth
+const user: RequestHandler = async (req, res, next) => {
+  auth.userAuth
   try {
     if (!req.user) {
       return res.status(401).json({ message: '인증 정보가 없습니다.' });
     }
     const { id } = req.user;
-    const user = await registerRepository.getUser(id);
+    const user = await authRepository.getUser(id);
 
     if (!user) return res.status(404).json({ message: '유저를 찾을 수 없습니다.' });
     res.status(200).json(user);
@@ -24,18 +24,18 @@ const UserInfo: RequestHandler = async (req, res, next) => {
   }
 }
 
-const updateUserInfo: RequestHandler = async (req, res, next) => {
-  auth.UserInfoAuth
+const updateUser: RequestHandler = async (req, res, next) => {
+  auth.userAuth
   try {
     if (!req.user) {
       return res.status(401).json({ message: '인증 정보가 없습니다.' });
     }
-    const { id } = req.user;
+    const { userId } = req.params;
     const { email, nickname } = req.body;
     const data = { email, nickname };
 
-    const updatedUserInfo = await prisma.user.update({
-      where: { id: Number(id) },
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(userId) },
       data,
       select: {
         email: true,
@@ -45,7 +45,7 @@ const updateUserInfo: RequestHandler = async (req, res, next) => {
       }
     });
 
-    res.json(updatedUserInfo)
+    res.json(updatedUser)
   } catch (error) {
     console.log("유저 정보 수정 오류", error);
     res.status(500).json({ error: '서버에 오류가 발생했습니다.' });
@@ -56,8 +56,8 @@ async function hashingPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
 
-const updatePasswordInfo: RequestHandler = async (req, res, next) => {
-  auth.UserInfoAuth
+const updatePassword: RequestHandler = async (req, res, next) => {
+  auth.userAuth
   try {
     if (!req.user) {
       return res.status(401).json({ message: '인증 정보가 없습니다.' });
@@ -81,27 +81,25 @@ const updatePasswordInfo: RequestHandler = async (req, res, next) => {
   }
 }
 
-const ProductInfo: RequestHandler = async (req, res, next) => {
-  auth.UserInfoAuth
+const product: RequestHandler = async (req, res, next) => {
+  auth.userAuth
   try {
     if (!req.user) {
       return res.status(401).json({ message: '인증 정보가 없습니다.' });
     }
-    const { id } = req.user;
-    const user = await registerRepository.getProductInfo(id);
+    const productId = req.params.productId;
+    const user = await authRepository.getProduct(productId);
     if (!user) return res.status(404).json({ message: '유저를 찾을 수 없습니다.' });
     res.status(200).json(user);
   } catch (err) {
     const message = err instanceof Error ? err.message : '알 수 없는 서버 오류';
     res.status(500).json({ message: '서버 오류', error: message });
-
   }
-
 }
 
 export default {
-  UserInfo,
-  updateUserInfo,
-  updatePasswordInfo,
-  ProductInfo,
+  user,
+  updateUser,
+  updatePassword,
+  product,
 };

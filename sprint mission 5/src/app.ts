@@ -7,8 +7,8 @@ import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 // 라우터
 import productRoutes from './routes/productRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
-import usedMarketCommentRoutes from './routes/usedMarketCommentRoutes.js';
-import freeBoardCommentRoutes from './routes/freeBoardCommentRoutes.js';
+import marketCommentRoutes from './routes/marketCommentRoutes.js';
+import boardCommentRoutes from './routes/boardCommentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import user from './routes/userRoutes.js';
 
@@ -59,8 +59,8 @@ app.post('/upload', upload.single('image'), (req, res) => {
 // 라우트 설정 (RESTful 스타일)
 app.use('/products', productRoutes); // 중고시장
 app.use('/articles', articleRoutes); // 자유게시판
-app.use('/products/comments', usedMarketCommentRoutes); // 중고시장 댓글
-app.use('/articles/comments', freeBoardCommentRoutes); // 자유게시판 댓글
+app.use('/products/markets', marketCommentRoutes); // 중고시장 댓글
+app.use('/articles/boards', boardCommentRoutes); // 자유게시판 댓글
 app.use('/auths', authRoutes); // 회원가입 및 로그인
 app.use('/users', user); // 유저 정보
 

@@ -1,48 +1,75 @@
 import { RequestHandler } from 'express'
 import { Prisma, PrismaClient } from '@prisma/client';
+import { createArticleService, updateArticleService, deleteArticleService } from '../services/articleService.js';
 
 const prisma = new PrismaClient();
 
+// ID 검증 헬퍼 함수
+const validateId = (articleId: string | number) => {
+  const num = Number(articleId);
+  if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
+    throw new Error('유효하지 않은 ID');
+  }
+  return num;
+}
+
 // 게시글 등록
-export const createArticle: RequestHandler = async (req, res, next) => {
+const createArticle: RequestHandler = async (req, res, next) => {
+  if (!req.user || typeof req.user.id !== 'number') {
+    return res.status(401).json({ error: '인증 정보가 없습니다.' });
+  }
+  const userId = req.user.id;
   try {
-    const { title, content, nickname, password } = req.body;
-
-    // 입력값 검증
-    if (!title || !content) {
-      return res.status(400).json({ message: '제목과 내용은 필수입니다' });
-    }
-
-    const article = await prisma.article.create({
-      data: {
-        title,
-        content,
-        user: {
-          connectOrCreate: {
-            where: { email: 'x@y.z' },
-            create: {
-              email: 'x@y.z',
-              nickname,
-              password,
-            }
-          }
-        }
-      },
-    });
+    const { title, content } = req.body;
+    const article = await createArticleService({ title, content, userId })
     res.status(201).json({ message: '게시글 등록 완료', article });
   } catch (err) {
-    next(err);
+    console.error('게시글 등록 오류:', err);
+    res.status(500).json({ error: '서버에 오류가 발생했습니다.' });
   }
 };
 
+// 게시글 수정
+const updateArticle: RequestHandler = async (req, res, next) => {
+  try {
+    const articleId = validateId(req.params.articleId);
+    const { title, content } = req.body;
+    if (!req.user || typeof req.user.id !== 'number') {
+      return res.status(401).json({ error: '인증 정보가 없습니다.' });
+    }
+    const userId = req.user.id;
+    const updateArticle = await updateArticleService({ articleId, title, content, userId });
+
+    res.status(200).json({ message: '게시글 수정 완료', updateArticle });
+  } catch (err) {
+    console.error('수정 오류:', err);
+    res.status(500).json({ error: '수정 중 오류가 발생했습니다.' });
+  }
+};
+
+// 게시글 삭제
+const deleteArticle: RequestHandler = async (req, res, next) => {
+  try {
+    const articleId = validateId(req.params.articleId);
+    if (!req.user || typeof req.user.id !== 'number') {
+      return res.status(401).json({ error: '인증 정보가 없습니다.' });
+    }
+    const deleteArticle = await deleteArticleService({ articleId });
+
+    res.status(200).json({ message: '게시글 삭제 완료', deleteArticle });
+  } catch (err) {
+    console.error('삭제 오류:', err);
+    res.status(500).json({ error: '삭제 중 오류가 발생했습니다.' });
+  }
+};
 // 게시글 상세 조회
 export const getArticle: RequestHandler = async (req, res, next) => {
   try {
     const id = validateId(req.params.id);
-    if (id.error) return res.status(400).json(id.error);
+    if (!id) return res.status(400).json(id);
 
     const article = await prisma.article.findUnique({
-      where: { id: id.value }
+      where: { id: id }
     });
 
     if (!article) {
@@ -97,65 +124,8 @@ export const getArticles: RequestHandler = async (req, res, next) => {
   }
 };
 
-// 게시글 수정
-export const updateArticle: RequestHandler = async (req, res, next) => {
-  try {
-    const id = validateId(req.params.id);
-    if (id.error) return res.status(400).json(id.error);
-
-    const { title, content } = req.body;
-
-    // 존재 여부 확인
-    const existing = await prisma.article.findUnique({
-      where: { id: id.value }
-    });
-    if (!existing) {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다' });
-    }
-
-    const article = await prisma.article.update({
-      where: { id: id.value },
-      data: { title, content },
-    });
-
-    res.status(200).json({ message: '게시글 수정 완료', article });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다' });
-    }
-    next(err);
-  }
-};
-
-// 게시글 삭제
-export const deleteArticle: RequestHandler = async (req, res, next) => {
-  try {
-    const id = validateId(req.params.id);
-    if (id.error) return res.status(400).json(id.error);
-
-    // 존재 여부 확인
-    const existing = await prisma.article.findUnique({
-      where: { id: id.value }
-    });
-    if (!existing) {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다' });
-    }
-
-    await prisma.article.delete({ where: { id: id.value } });
-    res.status(200).json({ message: '게시글 삭제 완료' });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다' });
-    }
-    next(err);
-  }
-};
-
-// ID 검증 헬퍼 함수
-function validateId(id: string | number) {
-  const num = Number(id);
-  if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
-    return { error: { message: '유효하지 않은 게시글 ID입니다' } };
-  }
-  return { value: num };
+export default {
+  createArticle,
+  updateArticle,
+  deleteArticle,
 }

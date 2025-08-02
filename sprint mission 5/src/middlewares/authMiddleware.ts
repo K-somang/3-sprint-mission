@@ -2,7 +2,7 @@ import { expressjwt } from 'express-jwt';
 import jwt from 'jsonwebtoken';
 import { RequestHandler } from 'express'
 
-import registerRepository from '../repositories/authRepository.js';
+import authRepository from '../repositories/authRepository.js';
 import { ExtendedError } from '../types/express/index.js';
 import type { JwtPayload } from 'jsonwebtoken';
 
@@ -15,17 +15,14 @@ const verifyAccessToken = expressjwt({
 const verifyProductAuth: RequestHandler = async (req, res, next) => {
   const userId = req.params.productId;
   try {
-    const ProductInfo = await registerRepository.getByProductId(userId);
+    const ProductInfo = await authRepository.getByProductId(userId);
 
     if (!ProductInfo) {
-      const error = new Error('ProductInfo not found') as ExtendedError;
-      error.code = 404;
-      throw error;
+      return res.status(404).json({ message: 'ProductInfo not found' })
     }
+
     if (!req.user || ProductInfo.userId !== req.user.id) {
-      const error = new Error('Forbidden') as ExtendedError;
-      error.code = 403;
-      throw error;
+      return res.status(403).json({ message: 'Forbidden' })
     }
 
     return next();
@@ -37,17 +34,15 @@ const verifyProductAuth: RequestHandler = async (req, res, next) => {
 const verifyArticleAuth: RequestHandler = async (req, res, next) => {
   const userId = req.params.articleId;
   try {
-    const ArticleInfo = await registerRepository.getByArticleId(userId);
+    const ArticleInfo = await authRepository.getByArticleId(userId);
 
     if (!ArticleInfo) {
-      const error = new Error('ArticleInfo not found') as ExtendedError;
-      error.code = 404;
-      throw error;
+      return res.status(404).json({ message: 'ArticleInfo not found' })
+
     }
     if (!req.user || ArticleInfo.userId !== req.user.id) {
-      const error = new Error('Forbidden') as ExtendedError;
-      error.code = 403;
-      throw error;
+      return res.status(403).json({ message: 'Forbidden' })
+
     }
 
     return next();
@@ -59,14 +54,14 @@ const verifyArticleAuth: RequestHandler = async (req, res, next) => {
 const verifyProductCommentAuth: RequestHandler = async (req, res, next) => {
   const userId = req.params.commentId;
   try {
-    const ProductCommentInfo = await registerRepository.getByProductCommentId(userId);
+    const ProductCommentInfo = await authRepository.getByProductCommentId(userId);
 
     if (!ProductCommentInfo) {
       const error = new Error('ProductCommentInfo not found') as ExtendedError;
       error.code = 404;
       throw error;
     }
-    if (ProductCommentInfo.id !== req.user?.id) {
+    if (ProductCommentInfo.userId !== req.user?.id) {
       const error = new Error('Forbidden') as ExtendedError;
       error.code = 403;
       throw error;
@@ -81,14 +76,14 @@ const verifyProductCommentAuth: RequestHandler = async (req, res, next) => {
 const verifyArticleCommentAuth: RequestHandler = async (req, res, next) => {
   const userId = req.params.commentId;
   try {
-    const ArticleCommentInfo = await registerRepository.getByArticleCommentId(userId);
+    const ArticleCommentInfo = await authRepository.getByArticleCommentId(userId);
 
     if (!ArticleCommentInfo) {
       const error = new Error('ArticleCommentInfo not found') as ExtendedError;
       error.code = 404;
       throw error;
     }
-    if (ArticleCommentInfo.id !== req.user!.id) {
+    if (ArticleCommentInfo.userId !== req.user!.id) {
       const error = new Error('Forbidden') as ExtendedError;
       error.code = 403;
       throw error;
@@ -100,7 +95,7 @@ const verifyArticleCommentAuth: RequestHandler = async (req, res, next) => {
   }
 }
 
-const UserInfoAuth: RequestHandler = async (req, res, next) => {
+const userAuth: RequestHandler = async (req, res, next) => {
   const token = req.header('Authorization')?.split(' ')[1]; // Bearer 토큰
 
   if (!token) return res.status(401).json({ message: '인증 토큰이 필요합니다.' });
@@ -133,6 +128,6 @@ export default {
   verifyArticleAuth,
   verifyProductCommentAuth,
   verifyArticleCommentAuth,
-  UserInfoAuth,
+  userAuth,
 }
 

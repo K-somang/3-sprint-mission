@@ -1,6 +1,6 @@
 import prisma from '../prisma/prisma.js';
 
-async function findById(id: any) {
+async function findById(id: number) {
   return prisma.user.findUnique({
     where: {
       id,
@@ -8,7 +8,7 @@ async function findById(id: any) {
   });
 }
 
-async function findByEmail(email: any) {
+async function findByEmail(email: string) {
   return await prisma.user.findUnique({
     where: {
       email,
@@ -16,7 +16,7 @@ async function findByEmail(email: any) {
   });
 }
 
-async function save(user: { email: any; nickname: any; password: any; }) {
+async function save(user: { email: string; nickname: string; password: string; }) {
   return prisma.user.create({
     data: {
       email: user.email,
@@ -41,7 +41,7 @@ async function getUser(id: any) {
   });
 }
 
-async function createOrUpdate(user: { id: any; email: any; nickname: any; password: any; }) {
+async function createOrUpdate(user: { id: number; email: string; nickname: string; password: string; }) {
   return prisma.user.upsert({
     where: {
       id: user.id
@@ -100,10 +100,10 @@ async function getByArticleCommentId(id: string) {
   return review;
 }
 
-async function getProductInfo(id: any) {
-  return prisma.product.findUnique({
+async function getProduct(productId: string) {
+  const review = await prisma.product.findUnique({
     where: {
-      id,
+      id: Number(productId),
     },
     select: {
       name: true,
@@ -114,6 +114,7 @@ async function getProductInfo(id: any) {
       updatedAt: true,
     }
   });
+  return review;
 }
 
 export default {
@@ -126,5 +127,5 @@ export default {
   getByArticleId,
   getByProductCommentId,
   getByArticleCommentId,
-  getProductInfo,
+  getProduct,
 }

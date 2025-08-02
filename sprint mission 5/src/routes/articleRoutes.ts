@@ -2,6 +2,8 @@ import express from 'express';
 import prisma from '../db.js';
 import auth from '../middlewares/authMiddleware.js';
 import { Prisma } from '@prisma/client';
+import articleController from '../controllers/articleController.js';
+import validate, { articleSchema } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -10,26 +12,28 @@ router.route('/')
   // 게시글 등록
   .post(
     auth.verifyAccessToken,
-    async (req, res) => {
-      if (!req.user) {
-        return res.status(401).json({ message: '로그인이 필요합니다.' });
-      }
-      const { id } = req.user;
-      try {
-        const { title, content } = req.body;
-        if (!title || !content) {
-          return res.status(400).json({ error: '필수 필드가 누락되었습니다.' });
-        }
-        const article = await prisma.article.create({
-          data: { title, content, user: { connect: { id: Number(id) } } },
-        });
-        res.status(201).json(article);
-      } catch (error) {
-        console.error('게시글 등록 오류:', error);
-        res.status(500).json({ error: '서버에 오류가 발생했습니다.' });
-      }
-    })// 게시글 목록 조회
+    validate(articleSchema),
+    articleController.createArticle,
+  )
 
+router.route('/:articleId')
+  // 게시글 수정
+  .patch(
+    auth.verifyAccessToken,
+    auth.verifyArticleAuth,
+    validate(articleSchema),
+    articleController.updateArticle,
+  )
+
+  // 게시글 삭제
+  .delete(
+    auth.verifyAccessToken,
+    auth.verifyArticleAuth,
+    articleController.deleteArticle,
+  )
+
+
+  // 게시글 목록 조회
   .get(async (req, res) => {
     try {
       const { page = '1', limit = '10', search, sort } = req.query;
@@ -91,42 +95,5 @@ router.route('/:articleId')
       res.status(500).json({ error: '상세 조회 중 오류가 발생했습니다.' });
     }
   })
-
-  // 게시글 수정
-  .patch(
-    auth.verifyAccessToken,
-    auth.verifyArticleAuth,
-    async (req, res) => {
-      try {
-        const { articleId } = req.params;
-        const { title, content } = req.body;
-        const updatedArticle = await prisma.article.update({
-          where: { id: Number(articleId) },
-          data: { title, content },
-        });
-        res.json(updatedArticle);
-      } catch (error) {
-        console.error('수정 오류:', error);
-        res.status(500).json({ error: '수정 중 오류가 발생했습니다.' });
-      }
-    })
-
-  // 게시글 삭제
-  .delete(
-    auth.verifyAccessToken,
-    auth.verifyArticleAuth,
-    async (req, res) => {
-      try {
-        const { articleId } = req.params;
-        await prisma.article.delete({
-          where: { id: Number(articleId) },
-        });
-        res.status(204).send();
-      } catch (error) {
-        console.error('삭제 오류:', error);
-        res.status(500).json({ error: '삭제 중 오류가 발생했습니다.' });
-      }
-    });
-
 
 export default router;

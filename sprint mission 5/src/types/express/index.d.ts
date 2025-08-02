@@ -6,6 +6,7 @@ declare global {
       user?: {
         id: number;
         email: string;
+        userId?: number;
         // user 객체에 실제 필요한 필드들 정의
         // 예: role?: string;
       }
