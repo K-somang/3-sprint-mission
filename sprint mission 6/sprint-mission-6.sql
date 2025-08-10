@@ -269,4 +269,3 @@ JOIN pizza_types pt ON p.type_id = pt.id
 GROUP BY pt.name
 ORDER BY total_revenue DESC
 ;
-
