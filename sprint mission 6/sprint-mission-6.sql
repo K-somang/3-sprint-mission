@@ -1,4 +1,4 @@
--- # 초급 문제
+-- 초급 문제
 
 -- 1. `orders` 테이블에서 모든 주문을 조회하세요.
 SELECT *
@@ -71,7 +71,7 @@ WHERE name LIKE '%Cheese%'
 	OR name LIKE '%Chicken%'
 ;
 
--- # 중급 문제
+-- 중급 문제
 
 -- 1. `order_details` 테이블에서 각 피자(`pizza_id`)별로 주문된 건 수(`order_id`)를 보여주세요.
 SELECT pizza_id,
@@ -136,7 +136,7 @@ GROUP BY o.date
 ORDER BY o.date
 ;
 
--- # 고급 문제
+-- 고급 문제
 
 /*
     1. 피자별(`pizzas.id` 기준) 판매 수량 순위에서 피자별 판매 수량 상위에 드는 베스트 피자를 10개를 조회해 주세요. `pizzas`의 모든 컬럼을 조회하면서 각 피자에 해당하는 판매량을 `total_quantity`라는 이름으로 함께 조회합니다.
