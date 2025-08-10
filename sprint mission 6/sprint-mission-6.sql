@@ -12,8 +12,7 @@ WHERE id = '423'
 ;
 
 -- 3. `orders` 테이블에서 총 주문 건수를 `total_orders`라는 이름으로 구하세요.
-SELECT 
-	COUNT(*) AS total_orders
+SELECT COUNT(*) AS total_orders
 FROM orders
 ;
 
